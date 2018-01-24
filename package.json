@@ -1,0 +1,26 @@
+{
+  "name": "email-send",
+  "version": "0.0.1",
+  "description": "server side to handle sending emails from a form",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/josuerojasrojas/email-send.git"
+  },
+  "author": "josue rojas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/josuerojasrojas/email-send/issues"
+  },
+  "homepage": "https://github.com/josuerojasrojas/email-send#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "google-auth-library": "^0.12.0",
+    "googleapis": "^25.0.0",
+    "nodemailer": "^4.4.2"
+  }
+}
