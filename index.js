@@ -108,7 +108,11 @@ function sendMail(emailTo, subject, text){
   });
 }
 
-app.get('/email', (req, res) => {
+app.get('/*', (req, res) => {
+  res.redirect('http://josuerz.xyz/I-send-you-email-front/')
+})
+
+app.post('/email', (req, res) => {
   sendMail('josuerojas.rojas@gmail.com', 'nothing', 'hahahahahah\nthis shoudl be a new line');
   res.send('send');
 });
