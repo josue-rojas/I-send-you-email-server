@@ -20,6 +20,12 @@ var ACCESS_TOKEN = process.env.G_ACCESS_TOKEN;
 var EXPIRE = process.env.G_EXPIRE;
 
 
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  next();
+});
 
 // // google authoriaze modified for env
 // function authorize_email(emailTo, subject, text) {
