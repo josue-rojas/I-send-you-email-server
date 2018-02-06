@@ -1,6 +1,21 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
+const parser = require('body-parser');
+// http://excellencenodejsblog.com/express-nodemailer-sending-mails/
+const hbs = require('nodemailer-express-handlebars');
+
+var options = {
+     viewEngine: {
+         extname: '.hbs',
+         layoutsDir: 'views/email/',
+         defaultLayout : 'template',
+         partialsDir : 'views/partials/'
+     },
+     viewPath: 'views/email/',
+     extName: '.hbs'
+ };
 const app = express();
+app.use(parser.json());
 var fs = require('fs');
 var readline = require('readline');
 var google = require('googleapis');
@@ -20,69 +35,12 @@ var ACCESS_TOKEN = process.env.G_ACCESS_TOKEN;
 var EXPIRE = process.env.G_EXPIRE;
 
 
-app.use(function(req, res, next) {
+app.use( (req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   next();
 });
-
-// // google authoriaze modified for env
-// function authorize_email(emailTo, subject, text) {
-//   var clientSecret = CLIENT_SECRET;
-//   var clientId = CLIENT_ID;
-//   var redirectUrl = REDIRECT_URIS;
-//   var auth = new googleAuth();
-//   var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
-//
-//   // Check if we have previously stored a token.
-//   fs.readFile(TOKEN_PATH, function(err, token) {
-//     if (err) {
-//       getNewToken(oauth2Client, sendMail, emailTo, subject, text);
-//     } else {
-//       oauth2Client.credentials = JSON.parse(token);
-//       sendMail(oauth2Client, emailTo, subject, text);
-//     }
-//   });
-// }
-//
-// // SAME AS GOOGLE EXAMPLE
-// function getNewToken(oauth2Client, callback, emailTo, subject, text) {
-//   var authUrl = oauth2Client.generateAuthUrl({
-//     access_type: 'offline',
-//     scope: SCOPES
-//   });
-//   console.log('Authorize this app by visiting this url: ', authUrl);
-//   var rl = readline.createInterface({
-//     input: process.stdin,
-//     output: process.stdout
-//   });
-//   rl.question('Enter the code from that page here: ', function(code) {
-//     rl.close();
-//     oauth2Client.getToken(code, function(err, token) {
-//       if (err) {
-//         console.log('Error while trying to retrieve access token', err);
-//         return;
-//       }
-//       oauth2Client.credentials = token;
-//       storeToken(token);
-//       callback(oauth2Client, emailTo, subject, text);
-//     });
-//   });
-// }
-//
-// // same as google
-// function storeToken(token) {
-//   try {
-//     fs.mkdirSync(TOKEN_DIR);
-//   } catch (err) {
-//     if (err.code != 'EEXIST') {
-//       throw err;
-//     }
-//   }
-//   fs.writeFile(TOKEN_PATH, JSON.stringify(token));
-//   console.log('Token stored to ' + TOKEN_PATH);
-// }
 
 function sendMail(emailTo, subject, text){
   console.log(emailTo)
@@ -98,18 +56,22 @@ function sendMail(emailTo, subject, text){
           expires: EXPIRE
     }
   });
+  transporter.use('compile', hbs(options));
   var mailOptions = {
       from: EMAIL,
       to: emailTo,
       subject: subject,
-      text: text
+      template: 'email',
+      context: {email: emailTo, subject: subject, text:text}
     };
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.log(error);
+      return false;
     } else {
       console.log('Email sent: ' + info.response);
+      return true;
     }
   });
 }
@@ -119,7 +81,9 @@ app.get('/*', (req, res) => {
 })
 
 app.post('/email', (req, res) => {
-  sendMail('josuerojas.rojas@gmail.com', 'nothing', 'hahahahahah\nthis shoudl be a new line');
+  // console.log(req.body);
+  // console.log(res.body)
+  sendMail(req.body.email, req.body.subject, req.body.message);
   res.send('send');
 });
 
