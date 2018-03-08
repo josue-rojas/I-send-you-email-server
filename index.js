@@ -1,6 +1,7 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const parser = require('body-parser');
+var cors = require('cors');
 // http://excellencenodejsblog.com/express-nodemailer-sending-mails/
 const hbs = require('nodemailer-express-handlebars');
 
@@ -35,15 +36,13 @@ var ACCESS_TOKEN = process.env.G_ACCESS_TOKEN;
 var EXPIRE = process.env.G_EXPIRE;
 
 
-app.use( (req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-  next();
-});
+// cor https://www.npmjs.com/package/cors
+var corsOptions = {
+  origin: 'http://josuerz.xyz/',
+  optionsSuccessStatus: 200
+}
 
 function sendMail(emailTo, subject, text){
-  console.log(emailTo)
   let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -80,9 +79,7 @@ app.get('/*', (req, res) => {
   res.redirect('http://josuerz.xyz/I-send-you-email-front/')
 })
 
-app.post('/email', (req, res) => {
-  // console.log(req.body);
-  // console.log(res.body)
+app.post('/email', cors(corsOptions), (req, res) => {
   sendMail(req.body.email, req.body.subject, req.body.message);
   res.send('send');
 });
